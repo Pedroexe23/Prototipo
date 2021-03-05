@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -14,6 +16,11 @@ namespace Prototipo.Controllers
     public class PersonasController : Controller
     {
         private Models.Prototipo db = new Models.Prototipo();
+        private PersonaDAO personaDAO = new PersonaDAO();
+        private Personas Persona = new Personas();
+        private Documento documento = new Documento();
+        private DocumentoDAO documentoDAO = new DocumentoDAO();
+        private SqlConnection conexion = new SqlConnection("data source=TECNO-PRACTI;initial catalog=Municipalidad;integrated security=True;");
 
         // GET: Personas
         public ActionResult Index()
@@ -128,7 +135,7 @@ namespace Prototipo.Controllers
         public ActionResult Localizar()
         {
             int cont = 0;
-            PersonaDAO personaDAO = new PersonaDAO();
+            
             List<Personas> buscados = personaDAO.GetPersonas();
 
             for (int i = 0; i < buscados.Count(); i++)
@@ -169,7 +176,7 @@ namespace Prototipo.Controllers
                 if (p.Nombre.Equals(Nombre) && p.Rut.Equals(Rut))
                 {
                     on = 1;
-                    Personas Persona = new Personas();
+                   
                     Persona.Nombre = Nombre;
                     Persona.Rut = Rut;
                     Persona.Apellido = Apellido;
@@ -209,24 +216,131 @@ namespace Prototipo.Controllers
 
         public ActionResult Documento()
         {
-            PersonaDAO personaDAO = new PersonaDAO();
-            List<Personas> personas =personaDAO.GetPersonas();
             
             return View();
         }
 
         [HttpPost]
-        public ActionResult Documento( string insertar)
+        public ActionResult Documento(HttpPostedFileBase insertar)
         {
+            //personaDAO.BorrarPersona();
+            //documentoDAO.BorrarDocumento();
+           
+            
+            if (insertar== null || insertar.ContentLength==0)
+            {
+                return ViewBag.Message = "Archivo Vacio";
+            }
+            else
+            {
+                try
+                {
+                    String fileName = Path.GetFileName(insertar.FileName);
+
+                    String folderpath = Path.Combine(Server.MapPath("~/DocumentosG"), fileName);
+                    insertar.SaveAs(folderpath);
+
+                    String result = string.Empty;
+                    String Fechas = DateTime.Now.Date.ToString("yyyy/MM/dd");
+
+                    foreach (string strfile in Directory.GetFiles(Server.MapPath("~/DocumentosG")))
+                    {
+                            FileInfo fi = new FileInfo(strfile);
+                             if (fi.Name.Equals(fileName))
+                            {
+                            Documento Doc = new Documento();
+                            Doc.Archivo = fi.Name;
+                            Doc.Tamaño = fi.Length;
+                            Doc.Tipo = GetFileTypeByExtension(fi.Extension);
+                            Doc.Fecha = DateTime.Parse(Fechas);
+                            documentoDAO.GuaradarDocumento(Doc);
+                            }
+                             
+                        }
+                    List<Documento> Archivos = documentoDAO.GetDocumento();
+                    int count = 0;
+                    int id = 1;
+                    int iddoc = 0;
+
+                    foreach (var item in Archivos)
+                    {
+                        Documento Doc = new Documento();
+                        Doc.Archivo = item.Archivo;
+                        Doc.Tamaño = item.Tamaño;
+                        Doc.Tipo = item.Tipo;
+                        Doc.Fecha = DateTime.Parse(Fechas);
+                        foreach (var items in db.Documento)
+                        {
+                            Documento doc = new Documento();
+                            doc.Id_Documento = items.Id_Documento;
+                            doc.Archivo = items.Archivo;
+                            doc.Tamaño = items.Tamaño;
+                            doc.Tipo = items.Tipo;
+                            doc.Fecha = items.Fecha;
+                            if (doc.Archivo.Equals(Doc.Archivo) && doc.Tamaño== Doc.Tamaño && doc.Tipo.Equals(Doc.Tipo))
+                            {
+                                conexion.Close();
+                                conexion.Open();
+                                String Cadena = " update Documento set Fecha=" + "'" + Doc.Fecha + "'where Id_documento=" + doc.Id_Documento + "";
+                                SqlCommand command = new SqlCommand(Cadena, conexion);
+                                int cant;
+                                cant = command.ExecuteNonQuery();
+                                conexion.Close();
+                                break;
+                            }
+                            
+                            else
+                            {
+                                count = count + 1;
+                                id = id + 1;
+                            }
+                            if (db.Documento.Count()!=0)
+                            {
+                                iddoc = doc.Id_Documento;
+                            }
+
+
+                        }
+                        if (count == db.Documento.Count())
+                        {
+                            Doc.Id_Documento = id+iddoc;
+                            db.Documento.Add(Doc);
+                            db.SaveChanges();
+                        }
+                    }
+                  
+
+                    }
+                catch (Exception )
+                { 
+                
+                }
+                }
+
             return View();
         }
-
-        public ActionResult guardado()
+        private string GetFileTypeByExtension(string fileExtension)
         {
-            return View();
+            switch (fileExtension.ToLower())
+            {
+                case ".docx":
+                case ".doc":
+                    return "Microsoft Word Document";
+
+                case ".pptx":
+                    return " Microsoft PowerPoint";
+
+                case ".pdf":
+                    return "Achivo PDF";
+
+                case ".xlsx":
+                case ".xls":
+                case ".csv":
+                    return "Microsoft Excel Document";
+
+                default:
+                    return "Unknown";
+            }
         }
-
-
-
     }
 }

@@ -1,28 +1,56 @@
 ﻿
+
 @{
-    ViewBag.Title = "Documento";
-}
-
-<h2>Documento</h2>
-
+    Prototipo.Models.DAO.PersonaDAO personaDAO = new Prototipo.Models.DAO.PersonaDAO();
+    Prototipo.Models.DAO.DocumentoDAO documentoDAO = new Prototipo.Models.DAO.DocumentoDAO();
+    List<Prototipo.Models.Personas> personas = personaDAO.GetPersonas();
+    List<Prototipo.Models.Documento> documentos = documentoDAO.GetDocumento();
+    }
+<h2></h2>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <link href="~/Content/Estilos.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
 
-    <title></title>
+    <title>Documento</title>
 </head>
 <body>
-    
     <header>
-        input
+        @foreach (var item in personas)
+        {
+            <div class="abajo">
+                <span> Nombre </span>
+                <input class="mover" type="text" name="Nombretxt" value="@item.Nombre" readonly="readonly"  />
+                <span> Apellido</span>
+                <input class="mover" type="text" name="Apellidotxt" value="@item.Apellido" readonly="readonly" />
+                <span> Rut </span>
+                <input class="mover" type="text" name="Ruttxt" value="@item.Rut" readonly="readonly" />
+            </div>
+        }
     </header>
-
     <main>
+        <div>
+            @using (Html.BeginForm("Documento", "Personas", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="card">
+                    <div class="card-body">
+                        @Html.TextBox("insertar", "", new { type = "file" }) <br />
 
+                        @{
+                            if (ViewBag.Message != null)
+                            {
+                                @ViewBag.Message
+                            }
 
-    </main>
+                        }
+                    </div>
 
+                    <input type="submit" value="subir" class="btn btn-success" />
+                </div>
+            }
+        </div>
+        </main>
+    
 </body>
 </html>
 
