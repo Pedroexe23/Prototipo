@@ -19,7 +19,7 @@ namespace Prototipo.Models.DAO
 
         public void BorrarDocumento()
         {
-            List<Documento> limpiar = new List<Documento>();
+            List<Documento> limpiar = GetDocumento();
             for (int i = 0; i >= limpiar.Count(); i++)
             {
                 if (limpiar.Count != 0)

@@ -19,7 +19,7 @@ namespace Prototipo.Models.DAO
 
         public void BorrarPersona()
         {
-            List<Personas> limpiar = new List<Personas>();
+            List<Personas> limpiar = GetPersonas();
             for (int i = 0; i >= limpiar.Count(); i++)
             {
                 if (limpiar.Count!=0)

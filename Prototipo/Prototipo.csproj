@@ -170,10 +170,11 @@
     </Compile>
     <Compile Include="Models\DAO\DocumentoDAO.cs" />
     <Compile Include="Models\DAO\PersonaDAO.cs" />
+    <Compile Include="Models\DAO\RegistroDAO.cs" />
     <Compile Include="Models\Documento.cs" />
     <Compile Include="Models\Personas.cs" />
     <Compile Include="Models\Prototipo.cs" />
-    <Compile Include="Models\sysdiagrams.cs" />
+    <Compile Include="Models\Registro.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -233,7 +234,7 @@
     <Content Include="Views\Personas\Edit.cshtml" />
     <Content Include="Views\Personas\Index.cshtml" />
     <Content Include="Views\Personas\Localizar.cshtml" />
-    <Content Include="Views\Personas\Documento.cshtml" />
+    <Content Include="Views\Personas\DocumentoRegistrados.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

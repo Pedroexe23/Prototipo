@@ -5,7 +5,7 @@
     Prototipo.Models.DAO.DocumentoDAO documentoDAO = new Prototipo.Models.DAO.DocumentoDAO();
     List<Prototipo.Models.Personas> personas = personaDAO.GetPersonas();
     List<Prototipo.Models.Documento> documentos = documentoDAO.GetDocumento();
-    }
+}
 <h2></h2>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -20,7 +20,7 @@
         {
             <div class="abajo">
                 <span> Nombre </span>
-                <input class="mover" type="text" name="Nombretxt" value="@item.Nombre" readonly="readonly"  />
+                <input class="mover" type="text" name="Nombretxt" value="@item.Nombre" readonly="readonly" />
                 <span> Apellido</span>
                 <input class="mover" type="text" name="Apellidotxt" value="@item.Apellido" readonly="readonly" />
                 <span> Rut </span>
@@ -30,7 +30,7 @@
     </header>
     <main>
         <div>
-            @using (Html.BeginForm("Documento", "Personas", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            @using (Html.BeginForm("DocumentoRegistrados", "Personas", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 <div class="card">
                     <div class="card-body">
@@ -49,8 +49,52 @@
                 </div>
             }
         </div>
-        </main>
-    
+
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Archivo</td>
+                        <td>Tamaño</td>
+                        <td>Tipo</td>
+                        <td>Fecha</td>
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in documentos)
+                    {
+                        if (documentos.Count == 0)
+                        {
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>@item.Archivo</td>
+                                <td>@item.Tamaño</td>
+                                <td>@item.Tipo</td>
+                                <td>@item.Fecha</td>
+                                <td></td>
+                            </tr>
+                        }
+
+                    }
+
+                </tbody>
+
+            </table>
+        </div>
+    </main>
+
 </body>
 </html>
 

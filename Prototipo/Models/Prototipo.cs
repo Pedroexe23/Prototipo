@@ -14,7 +14,7 @@ namespace Prototipo.Models
 
         public virtual DbSet<Documento> Documento { get; set; }
         public virtual DbSet<Personas> Personas { get; set; }
-        public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
+        public virtual DbSet<Registro> Registro { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -36,6 +36,10 @@ namespace Prototipo.Models
 
             modelBuilder.Entity<Personas>()
                 .Property(e => e.Rut)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<Registro>()
+                .Property(e => e.Fk_RUT)
                 .IsUnicode(false);
         }
     }

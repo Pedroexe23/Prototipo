@@ -20,6 +20,8 @@ namespace Prototipo.Controllers
         private Personas Persona = new Personas();
         private Documento documento = new Documento();
         private DocumentoDAO documentoDAO = new DocumentoDAO();
+        private Registro registro = new Registro();
+        private RegistroDAO registroDAO = new RegistroDAO();
         private SqlConnection conexion = new SqlConnection("data source=TECNO-PRACTI;initial catalog=Municipalidad;integrated security=True;");
 
         // GET: Personas
@@ -140,7 +142,7 @@ namespace Prototipo.Controllers
 
             for (int i = 0; i < buscados.Count(); i++)
             {
-                cont = cont + 1;
+                cont += cont + 1;
 
 
 
@@ -185,7 +187,7 @@ namespace Prototipo.Controllers
                 }
                 else
                 {
-                    count = count + 1;
+                    count += count + 1;
                     if (on == 1)
                     {
                         break;
@@ -214,18 +216,63 @@ namespace Prototipo.Controllers
 
         }
 
-        public ActionResult Documento()
+        public ActionResult DocumentoRegistrados()
         {
             
+            List<Personas> personas = personaDAO.GetPersonas();
+
+            foreach (var item in personas)
+            {
+                Personas person = new Personas();
+                person.Rut = item.Rut;
+                foreach (var items in db.Registro)
+                {
+                    Registro R = new Registro();
+                    R.Fk_Id_Documento = items.Fk_Id_Documento;
+                    R.Fk_RUT = items.Fk_RUT;
+                    if (person.Rut.Equals(R.Fk_RUT))
+                    {
+                        registroDAO.guardarRegistro(R);
+                    }
+
+                }
+
+            }
+            List<Registro> registros = registroDAO.GetRegistros();
+            if (registros.Count!=0)
+            {
+
+            
+            foreach (var Re in registros)
+            {
+                Registro registro = new Registro();
+                registro.Fk_RUT = Re.Fk_RUT;
+                registro.Fk_Id_Documento = Re.Fk_Id_Documento;
+                foreach (var item in db.Documento)
+                {
+                Documento documento = new Documento();
+                documento.Id_Documento = item.Id_Documento;
+                documento.Archivo = item.Archivo;
+                documento.Tamaño = item.Tamaño;
+                documento.Tipo = item.Tipo;
+                documento.Fecha = item.Fecha;
+                    if (documento.Id_Documento== registro.Fk_Id_Documento)
+                    {
+                        documentoDAO.GuaradarDocumento(documento);
+
+                    }
+
+                }
+            }
+            registroDAO.BorrarRegistro();
+            }
             return View();
         }
 
         [HttpPost]
-        public ActionResult Documento(HttpPostedFileBase insertar)
+        public ActionResult DocumentoRegistrados(HttpPostedFileBase insertar)
         {
-            //personaDAO.BorrarPersona();
-            //documentoDAO.BorrarDocumento();
-           
+            documentoDAO.BorrarDocumento();
             
             if (insertar== null || insertar.ContentLength==0)
             {
@@ -291,8 +338,8 @@ namespace Prototipo.Controllers
                             
                             else
                             {
-                                count = count + 1;
-                                id = id + 1;
+                                count += count + 1;
+                                id += id + 1;
                             }
                             if (db.Documento.Count()!=0)
                             {
@@ -308,7 +355,21 @@ namespace Prototipo.Controllers
                             db.SaveChanges();
                         }
                     }
-                  
+                    List<Personas> Person = personaDAO.GetPersonas();
+
+                    foreach (var item in Person)
+                    {
+                        Personas personas = new Personas();
+                        personas.Rut = item.Rut;
+                        foreach (var items in Archivos)
+                        {
+                            Documento dos = new Documento();
+                            dos.Id_Documento = items.Id_Documento;
+                            
+                        }
+                    }
+                    documentoDAO.BorrarDocumento();
+            
 
                     }
                 catch (Exception )
@@ -317,7 +378,7 @@ namespace Prototipo.Controllers
                 }
                 }
 
-            return View();
+            return Redirect("DocumentoRegistrados");
         }
         private string GetFileTypeByExtension(string fileExtension)
         {
