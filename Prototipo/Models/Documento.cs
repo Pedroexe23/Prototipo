@@ -16,12 +16,12 @@ namespace Prototipo.Models
         [StringLength(60)]
         public string Archivo { get; set; }
 
-        public long? Tamaño { get; set; }
+        public long Tamaño { get; set; }
 
         [StringLength(50)]
         public string Tipo { get; set; }
 
         [Column(TypeName = "date")]
-        public DateTime? Fecha { get; set; }
+        public DateTime Fecha { get; set; }
     }
 }

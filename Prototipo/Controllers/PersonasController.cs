@@ -226,12 +226,11 @@ namespace Prototipo.Controllers
 
 
         }
-
+        [HttpGet]
         public ActionResult DocumentoRegistrados()
         {
             
             List<Personas> personas = personaDAO.GetPersonas();
-
             foreach (var item in personas)
             {
                 Personas person = new Personas();
@@ -247,180 +246,186 @@ namespace Prototipo.Controllers
                     }
 
                 }
-
             }
             List<Registro> registros = registroDAO.GetRegistros();
+
             if (registros.Count!=0)
             {
-
-            
-            foreach (var Re in registros)
-            {
-                Registro registro = new Registro();
-                registro.Fk_RUT = Re.Fk_RUT;
-                registro.Fk_Id_Documento = Re.Fk_Id_Documento;
-                foreach (var item in db.Documento)
+                foreach (var item in registros)
                 {
-                Documento documento = new Documento();
-                documento.Id_Documento = item.Id_Documento;
-                documento.Archivo = item.Archivo;
-                documento.Tamaño = item.Tamaño;
-                documento.Tipo = item.Tipo;
-                documento.Fecha = item.Fecha;
-                    if (documento.Id_Documento== registro.Fk_Id_Documento)
+                    Registro registro = new Registro();
+                    registro.Fk_RUT = item.Fk_RUT;
+                    registro.Fk_Id_Documento = item.Fk_Id_Documento;
+                    foreach (var items in db.Documento)
                     {
-                        documentoDAO.GuaradarDocumento(documento);
-
+                        Documento documento = new Documento();
+                        documento.Id_Documento = items.Id_Documento;
+                        if (documento.Id_Documento == registro.Fk_Id_Documento)
+                        {
+                            documento.Archivo = items.Archivo;
+                            documento.Tamaño = items.Tamaño;
+                            documento.Tipo = items.Tipo;
+                            documento.Fecha = items.Fecha;
+                            documentoDAO.GuaradarDocumento(documento);
+                        }
                     }
-
                 }
+                registroDAO.BorrarRegistro();
             }
-            registroDAO.BorrarRegistro();
-            }
+           
             return View();
         }
 
         [HttpPost]
         public ActionResult DocumentoRegistrados(HttpPostedFileBase insertar)
         {
-            documentoDAO.BorrarDocumento();
             
-            if (insertar== null || insertar.ContentLength==0)
+            
+
+            if (insertar == null || insertar.ContentLength == 0)
             {
                 ViewBag.Message = "Archivo Vacio, Por favor ingrese un archivo";
                 return View();
             }
             else
             {
-                try
+                int idregistro = 0;
+                List<Documento> Archivos = documentoDAO.GetDocumento();
+                Archivos.Clear();
+                documentoDAO.BorrartodolosDocumentos();
+
+                String fileName = Path.GetFileName(insertar.FileName);
+
+                String folderpath = Path.Combine(Server.MapPath("~/DocumentosG"), fileName);
+                insertar.SaveAs(folderpath);
+
+                String result = string.Empty;
+                String Fechas = DateTime.Now.Date.ToString("yyyy/MM/dd");
+
+                foreach (string strfile in Directory.GetFiles(Server.MapPath("~/DocumentosG")))
                 {
-                    String fileName = Path.GetFileName(insertar.FileName);
-
-                    String folderpath = Path.Combine(Server.MapPath("~/DocumentosG"), fileName);
-                    insertar.SaveAs(folderpath);
-
-                    String result = string.Empty;
-                    String Fechas = DateTime.Now.Date.ToString("yyyy/MM/dd");
-
-                    foreach (string strfile in Directory.GetFiles(Server.MapPath("~/DocumentosG")))
-                    {
-                            FileInfo fi = new FileInfo(strfile);
-                             if (fi.Name.Equals(fileName))
-                            {
-                            Documento Doc = new Documento();
-                            Doc.Archivo = fi.Name;
-                            Doc.Tamaño = fi.Length;
-                            Doc.Tipo = GetFileTypeByExtension(fi.Extension);
-                            Doc.Fecha = DateTime.Parse(Fechas);
-                            documentoDAO.GuaradarDocumento(Doc);
-                            }
-                             
-                        }
-                    List<Documento> Archivos = documentoDAO.GetDocumento();
-                    int count = 0;
-                    int id = 1;
-                    int iddoc = 0;
-                    int on = 1;
-                    foreach (var item in Archivos)
+                    FileInfo fi = new FileInfo(strfile);
+                    if (fi.Name.Equals(fileName))
                     {
                         Documento Doc = new Documento();
-                        Doc.Archivo = item.Archivo;
-                        Doc.Tamaño = item.Tamaño;
-                        Doc.Tipo = item.Tipo;
+                        Doc.Archivo = fi.Name;
+                        Doc.Tamaño = fi.Length;
+                        Doc.Tipo = GetFileTypeByExtension(fi.Extension);
                         Doc.Fecha = DateTime.Parse(Fechas);
-                        foreach (var items in db.Documento)
-                        {
-                            Documento doc = new Documento();
-                            doc.Id_Documento = items.Id_Documento;
-                            doc.Archivo = items.Archivo;
-                            doc.Tamaño = items.Tamaño;
-                            doc.Tipo = items.Tipo;
-                            doc.Fecha = items.Fecha;
-                            if (doc.Archivo.Equals(Doc.Archivo) && doc.Tamaño== Doc.Tamaño && doc.Tipo.Equals(Doc.Tipo))
-                            {
-                                on = 1;
-                                conexion.Close();
-                                conexion.Open();
-                                String Cadena = " update Documento set Fecha=" + "'" + Doc.Fecha + "'where Id_documento=" + doc.Id_Documento + "";
-                                SqlCommand command = new SqlCommand(Cadena, conexion);
-                                int cant;
-                                cant = command.ExecuteNonQuery();
-                                conexion.Close();
-                                break;
-                            }
+                        documentoDAO.GuaradarDocumento(Doc);
+                    }
 
-                            else if (on ==1)
+                }
+                Archivos = documentoDAO.GetDocumento();
+                int count = 0;
+                int id = 1;
+                int iddoc = 0;
+                int on = 1;
+                foreach (var item in Archivos)
+                {
+                    Documento Doc = new Documento();
+                    Doc.Archivo = item.Archivo;
+                    Doc.Tamaño = item.Tamaño;
+                    Doc.Tipo = item.Tipo;
+                    Doc.Fecha = DateTime.Parse(Fechas);
+                    foreach (var items in db.Documento)
+                    {
+                        on = 0;
+                        Documento doc = new Documento();
+                        doc.Id_Documento = items.Id_Documento;
+                        doc.Archivo = items.Archivo;
+                        doc.Tamaño = items.Tamaño;
+                        doc.Tipo = items.Tipo;
+                        doc.Fecha = items.Fecha;
+                        if (doc.Archivo.Equals(Doc.Archivo) && doc.Tamaño == Doc.Tamaño && doc.Tipo.Equals(Doc.Tipo))
+                        {
+                            idregistro = doc.Id_Documento;
+                            on = 1;
+                            conexion.Close();
+                            conexion.Open();
+                            String Cadena = " update Documento set Fecha=" + "'" + Doc.Fecha + "'where Id_documento=" + doc.Id_Documento + "";
+                            SqlCommand command = new SqlCommand(Cadena, conexion);
+                            int cant;
+                            cant = command.ExecuteNonQuery();
+                            conexion.Close();
+                            break;
+                        }
+
+                        else if (on == 1)
+                        {
+                            if (db.Documento.Count() != 0)
                             {
-                                if (db.Documento.Count() != 0)
-                                {
-                                    iddoc = doc.Id_Documento;
-                                }
+                                iddoc = doc.Id_Documento;
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            if (db.Documento.Count() != 0)
+                            {
+                                iddoc = doc.Id_Documento;
+                            }
+                            count = count + 1;
+
+                        }
+
+                        if (count >= db.Documento.Count())
+                        {
+                            Doc.Id_Documento = id + iddoc;
+                            idregistro = Doc.Id_Documento;
+                            db.Documento.Add(Doc);
+                            db.SaveChanges();
+                        }
+
+                    }
+
+                    
+                }
+                List<Personas> Person = personaDAO.GetPersonas();
+                count = 0;
+                on = 0;
+                foreach (var item in Person)
+                {
+                    Personas personas = new Personas();
+                    personas.Rut = item.Rut;
+                    foreach (var items in Archivos)
+                    {
+                        Documento dos = new Documento();
+                        dos.Id_Documento = idregistro;
+                        Registro re = new Registro();
+                        re.Fk_Id_Documento = dos.Id_Documento;
+                        re.Fk_RUT = personas.Rut;
+                        foreach (var ite in db.Registro)
+                        {
+                            Registro registro = new Registro();
+                            registro.Fk_RUT = ite.Fk_RUT;
+                            registro.Fk_Id_Documento = ite.Fk_Id_Documento;
+                            if (registro.Fk_RUT.Equals(re.Fk_RUT) && registro.Fk_Id_Documento == re.Fk_Id_Documento)
+                            {
+                                on = on + 1;
+                                ViewBag.Message = "ya esta Registrado este documento para este usuario";
+                                return Redirect("DocumentoRegistrados");
+                            }
+                            else if (on == 1)
+                            {
                                 break;
                             }
                             else
                             {
-                                if (db.Documento.Count() != 0)
-                                {
-                                    iddoc = doc.Id_Documento;
-                                }
-                                count += count + 1;
-                                
+                                count = count + 1;
                             }
-
-                            
-
                         }
-                       
-                        if (count == db.Documento.Count())
+                        if (count == db.Registro.Count())
                         {
-                            Doc.Id_Documento = id+iddoc;
-                            db.Documento.Add(Doc);
-                            
-                        }
-                    }
-                    List<Personas> Person = personaDAO.GetPersonas();
-
-                    foreach (var item in Person)
-                    {
-                        Personas personas = new Personas();
-                        personas.Rut = item.Rut;
-                        foreach (var items in Archivos)
-                        {
-                            Documento dos = new Documento();
-                            dos.Id_Documento = items.Id_Documento;
-                            Registro re = new Registro();
-                                re.Fk_Id_Documento = dos.Id_Documento;
-                                re.Fk_RUT = personas.Rut;
-                            foreach (var ite in db.Registro)
-                            {
-                                Registro registro = new Registro();
-                                registro.Fk_RUT = ite.Fk_RUT;
-                                registro.Fk_Id_Documento = ite.Fk_Id_Documento;
-                                if (registro.Fk_RUT.Equals(re.Fk_RUT) && registro.Fk_Id_Documento==re.Fk_Id_Documento)
-                                {
-                                    ViewBag.Message = "ya esta Registrado este documento para este usuario";
-                                    return View();
-                                }
-                                else
-                                {
-
-                                }
-                            }
                             db.Registro.Add(re);
                             db.SaveChanges();
-
-
                         }
                     }
-                    documentoDAO.BorrarDocumento();
-            
+                }
 
-                    }
-                catch (Exception )
-                { 
-                
-                }
-                }
+              
+                documentoDAO.BorrartodolosDocumentos();
+            }
 
             return Redirect("DocumentoRegistrados");
         }

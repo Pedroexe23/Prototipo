@@ -17,24 +17,14 @@ namespace Prototipo.Models.DAO
             return Documentos;
         }
 
-        public void BorrarDocumento()
+        public void EliminarDocumento(Documento d)
         {
-            List<Documento> limpiar = GetDocumento();
-            for (int i = 0; i >= limpiar.Count(); i++)
-            {
-                if (limpiar.Count != 0)
-                {
-                    Documento D = new Documento();
-                    D.Id_Documento = limpiar[i].Id_Documento;
-                    D.Archivo = limpiar[i].Archivo;
-                    D.Fecha = limpiar[i].Fecha;
-                    D.Tamaño = limpiar[i].Tamaño;
-                    D.Tipo = limpiar[i].Tipo;
-                    Documentos.Remove(D);
-                }
+            Documentos.Remove(d);
+        }
 
-
-            }
+        public void BorrartodolosDocumentos()
+        {
+            Documentos.Clear();
 
         }
 
