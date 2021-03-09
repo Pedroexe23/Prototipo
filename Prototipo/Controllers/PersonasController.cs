@@ -169,48 +169,59 @@ namespace Prototipo.Controllers
             String Nombre = formCollection["Nombretxt"];
             String Apellido = formCollection["Apellidotxt"];
             String Rut = formCollection["Ruttxt"];
-            foreach (var item in db.Personas)
+            if (String.IsNullOrEmpty(Nombre) || String.IsNullOrEmpty(Apellido) || String.IsNullOrEmpty(Rut))
             {
-                Personas p = new Personas();
-                p.Nombre = item.Nombre;
-                p.Rut = item.Rut;
-                p.Apellido = item.Apellido;
-                if (p.Nombre.Equals(Nombre) && p.Rut.Equals(Rut))
-                {
-                    on = 1;
-                   
-                    Persona.Nombre = Nombre;
-                    Persona.Rut = Rut;
-                    Persona.Apellido = Apellido;
-                    personaDAO.GuaradarPersona(Persona);
+                ViewBag.Message = "Debes ingresar el nombre  o el apellido o el rut";
+                return View();
 
-                }
-                else
-                {
-                    count += count + 1;
-                    if (on == 1)
-                    {
-                        break;
-                    }
-                }
-
-
-            }
-            if (count != db.Personas.Count())
-            {
-                return Redirect("Localizar");
             }
             else
             {
-
-
-                for (int i = 0; i == 30; i++)
+                foreach (var item in db.Personas)
                 {
-                    ViewBag.Message = "No Existe esa persona";
+                    Personas p = new Personas();
+                    p.Nombre = item.Nombre;
+                    p.Rut = item.Rut;
+                    p.Apellido = item.Apellido;
+                    if (p.Nombre.Equals(Nombre) && p.Rut.Equals(Rut) && p.Apellido.Equals(Apellido))
+                    {
+                        on = 1;
+
+                        Persona.Nombre = Nombre;
+                        Persona.Rut = Rut;
+                        Persona.Apellido = Apellido;
+                        personaDAO.GuaradarPersona(Persona);
+
+                    }
+                    else if (on == 1)
+                    {
+    
+                            break;
+                        
+                    }
+                    else 
+                    {
+                        count+= 1;
+                        
+                    }
+
+
                 }
-                personaDAO.BorrarPersona();
-                return View();
+
+                if (count != db.Personas.Count())
+                {
+                    return Redirect("Localizar");
+                }
+                else
+                {
+                    ViewBag.Message = "No Existe esa persona ingrese el nombre , apellido y el Rut correpondiente";
+                    return View();
+                }
+
             }
+
+
+
 
 
 
@@ -276,7 +287,8 @@ namespace Prototipo.Controllers
             
             if (insertar== null || insertar.ContentLength==0)
             {
-                return ViewBag.Message = "Archivo Vacio";
+                ViewBag.Message = "Archivo Vacio, Por favor ingrese un archivo";
+                return View();
             }
             else
             {
@@ -308,7 +320,7 @@ namespace Prototipo.Controllers
                     int count = 0;
                     int id = 1;
                     int iddoc = 0;
-
+                    int on = 1;
                     foreach (var item in Archivos)
                     {
                         Documento Doc = new Documento();
@@ -326,6 +338,7 @@ namespace Prototipo.Controllers
                             doc.Fecha = items.Fecha;
                             if (doc.Archivo.Equals(Doc.Archivo) && doc.Tamaño== Doc.Tamaño && doc.Tipo.Equals(Doc.Tipo))
                             {
+                                on = 1;
                                 conexion.Close();
                                 conexion.Open();
                                 String Cadena = " update Documento set Fecha=" + "'" + Doc.Fecha + "'where Id_documento=" + doc.Id_Documento + "";
@@ -335,24 +348,34 @@ namespace Prototipo.Controllers
                                 conexion.Close();
                                 break;
                             }
-                            
+
+                            else if (on ==1)
+                            {
+                                if (db.Documento.Count() != 0)
+                                {
+                                    iddoc = doc.Id_Documento;
+                                }
+                                break;
+                            }
                             else
                             {
+                                if (db.Documento.Count() != 0)
+                                {
+                                    iddoc = doc.Id_Documento;
+                                }
                                 count += count + 1;
-                                id += id + 1;
-                            }
-                            if (db.Documento.Count()!=0)
-                            {
-                                iddoc = doc.Id_Documento;
+                                
                             }
 
+                            
 
                         }
+                       
                         if (count == db.Documento.Count())
                         {
                             Doc.Id_Documento = id+iddoc;
                             db.Documento.Add(Doc);
-                            db.SaveChanges();
+                            
                         }
                     }
                     List<Personas> Person = personaDAO.GetPersonas();
@@ -365,7 +388,28 @@ namespace Prototipo.Controllers
                         {
                             Documento dos = new Documento();
                             dos.Id_Documento = items.Id_Documento;
-                            
+                            Registro re = new Registro();
+                                re.Fk_Id_Documento = dos.Id_Documento;
+                                re.Fk_RUT = personas.Rut;
+                            foreach (var ite in db.Registro)
+                            {
+                                Registro registro = new Registro();
+                                registro.Fk_RUT = ite.Fk_RUT;
+                                registro.Fk_Id_Documento = ite.Fk_Id_Documento;
+                                if (registro.Fk_RUT.Equals(re.Fk_RUT) && registro.Fk_Id_Documento==re.Fk_Id_Documento)
+                                {
+                                    ViewBag.Message = "ya esta Registrado este documento para este usuario";
+                                    return View();
+                                }
+                                else
+                                {
+
+                                }
+                            }
+                            db.Registro.Add(re);
+                            db.SaveChanges();
+
+
                         }
                     }
                     documentoDAO.BorrarDocumento();

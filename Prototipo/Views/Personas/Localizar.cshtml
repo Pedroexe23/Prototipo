@@ -24,6 +24,14 @@
         <div style="padding-top:15px">
             <input type="submit" name="name" value="Buscar" class="btn btn-success" />
         </div>
+
+        @if (ViewBag.Message != null)
+        {
+            <h3> @ViewBag.Message </h3>
+
+        }
+
+
         <div class="abajo">
             <table class="table" border="1" cellpadding="1" cellspacing="1">
                 <thead>
