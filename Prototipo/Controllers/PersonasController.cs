@@ -16,14 +16,14 @@ namespace Prototipo.Controllers
     public class PersonasController : Controller
     {
         private Documentacion db = new Documentacion();
-        private PersonaDAO personaDAO = new PersonaDAO();
-        private Personas Persona = new Personas();
+        
+     
         private Documento documento = new Documento();
         private DocumentoDAO documentoDAO = new DocumentoDAO();
         private Registro registro = new Registro();
         private RegistroDAO registroDAO = new RegistroDAO();
         private SqlConnection conexion = new SqlConnection("data source=TECNO-PRACTI;initial catalog=Municipalidad;integrated security=True;");
-       
+        
 
         // GET: Personas
         public ActionResult Index()
@@ -137,31 +137,30 @@ namespace Prototipo.Controllers
 
         public ActionResult Localizar()
         {
-            int cont = 0;
-            List<Personas> buscados = personaDAO.GetPersonas();
-            for (int i = 0; i < buscados.Count(); i++)
-            {
-                cont += cont + 1;
-            }
-            if (cont == 0)
-            {
+            
+           
+            
                 return View();
-            }
-            else
-            {
-                return View(buscados.ToList());
-            }
+            
 
 
         }
+        private PersonaDAO dao = new PersonaDAO();
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Localizar(FormCollection formCollection)
         {
+            
+            List<Personas> personas = new List<Personas>();
             int on = 0;
             int count = 0;
-            PersonaDAO personaDAO = new PersonaDAO();
-            personaDAO.BorrarPersona();
+            
+            if (new PersonaDAO().GetPersonas().Count!=0)
+            {
+                personas = new PersonaDAO().GetPersonas();
+            }
+            
+           
             String Nombre = formCollection["Nombretxt"];
             String Apellido = formCollection["Apellidotxt"];
             String Rut = formCollection["Ruttxt"];
@@ -181,11 +180,39 @@ namespace Prototipo.Controllers
                     if (p.Nombre.Equals(Nombre) && p.Rut.Equals(Rut) && p.Apellido.Equals(Apellido))
                     {
                         on = 1;
-
+                        Personas Persona = new Personas();
                         Persona.Nombre = Nombre;
                         Persona.Rut = Rut;
                         Persona.Apellido = Apellido;
-                        personaDAO.GuaradarPersona(Persona);
+                        if (personas.Count == 0)
+                        {
+                            new PersonaDAO().GuaradarPersona(Persona);
+                        }
+                        else
+                        {
+
+                            for (int k = 0; k <personas.Count() ; k++)
+
+                            {
+                                Personas personas_guardada = new Personas();
+                                personas_guardada.Nombre = personas[k].Nombre;
+                                personas_guardada.Rut = personas[k].Rut;
+                                personas_guardada.Apellido = personas[k].Apellido;
+                                personas_guardada.Registro= personas[k].Registro;
+                                if (!personas_guardada.Nombre.Equals(Nombre)&&!personas_guardada.Apellido.Equals(Apellido) &&!personas_guardada.Rut.Equals(Rut))
+                                {
+                                    dao.BorrarPersona();
+                                    new PersonaDAO().GuaradarPersona(Persona);
+                                    return View();
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                               
+                            }
+                        }
+                        
                     }
                     else if (on == 1)
                     {
@@ -201,7 +228,8 @@ namespace Prototipo.Controllers
 
                 if (count != db.Personas.Count())
                 {
-                    return Redirect("Localizar");
+                    return View();
+
                 }
                 else
                 {
@@ -223,7 +251,7 @@ namespace Prototipo.Controllers
             documentoDAO.EliminarDocumento();
             
           
-            List<Personas> personas = personaDAO.GetPersonas();
+            List<Personas> personas = new PersonaDAO().GetPersonas();
             foreach (var item in personas)
             {
                 Personas person = new Personas();
@@ -297,7 +325,7 @@ namespace Prototipo.Controllers
                 String folderpath = Path.Combine(Server.MapPath("~/DocumentosG"), fileName);
                 insertar.SaveAs(folderpath);
 
-                String result = string.Empty;
+                
                 String Fechas = DateTime.Now.Date.ToString("yyyy/MM/dd");
 
                 foreach (string strfile in Directory.GetFiles(Server.MapPath("~/DocumentosG")))
@@ -363,7 +391,7 @@ namespace Prototipo.Controllers
                             {
                                 iddoc = doc.Id_Documento;
                             }
-                            count = count + 1;
+                            count += 1;
 
                         }
 
@@ -372,15 +400,15 @@ namespace Prototipo.Controllers
                             Doc.Id_Documento = id + iddoc;
                             idregistro = Doc.Id_Documento;
                             Guardar_documentos.Add(Doc);
-                            Do_Re = Do_Re + 1;
-                            onDo = onDo + 1;
+                            Do_Re +=  1;
+                            onDo +=  1;
                         }
 
                     }
 
                     
                 }
-                List<Personas> Person = personaDAO.GetPersonas();
+                List<Personas> Person = new PersonaDAO().GetPersonas();
                 count = 0;
                 on = 0;
                 foreach (var item in Person)
@@ -401,7 +429,7 @@ namespace Prototipo.Controllers
                             registro.Fk_Id_Documento = ite.Fk_Id_Documento;
                             if (registro.Fk_RUT.Equals(re.Fk_RUT) && registro.Fk_Id_Documento == re.Fk_Id_Documento)
                             {
-                                on = on + 1;
+                                on += 1;
                                 ViewBag.Message = "ya esta Registrado este documento para este usuario";
                                 return Redirect("DocumentoRegistrados");
                             }
@@ -411,14 +439,14 @@ namespace Prototipo.Controllers
                             }
                             else
                             {
-                                count = count + 1;
+                                count += 1 ;
                             }
                         }
                         if (count == db.Registro.Count())
                         {
                             Guardar_registros.Add(re);
-                            Do_Re = Do_Re + 1;
-                            onRE = onRE + 1;
+                            Do_Re +=  1;
+                            onRE +=  1;
                         }
                     }
                 }

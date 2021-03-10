@@ -1,6 +1,10 @@
 ﻿
 @{
     ViewBag.Title = "Localizar";
+
+   
+    List<Prototipo.Models.Personas> personas = new List<Prototipo.Models.Personas>();
+         personas = new Prototipo.Models.DAO.PersonaDAO().GetPersonas();
 }
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -42,7 +46,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model == null)
+                    @if (personas.Count==0)
                     {
                     <td> </td>
                     <td> </td>
@@ -51,7 +55,7 @@
                 }
                 else
                 {
-                    foreach (var item in Model)
+                    foreach (var item in personas)
                     {
 
                         <tr>
