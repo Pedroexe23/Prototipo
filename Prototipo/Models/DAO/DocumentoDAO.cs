@@ -17,9 +17,27 @@ namespace Prototipo.Models.DAO
             return Documentos;
         }
 
-        public void EliminarDocumento(Documento d)
+        public void EliminarDocumento()
         {
-            Documentos.Remove(d);
+            Documentos = GetDocumento();
+            for (int i = 0; i >= Documentos.Count(); i++)
+            {
+                if (Documentos.Count != 0)
+                {
+                    Documento d = new Documento();
+                    d.Id_Documento = Documentos[i].Id_Documento;
+                    d.Archivo = Documentos[i].Archivo;
+                    d.Fecha= Documentos[i].Fecha;
+                    d.Tamaño = Documentos[i].Tamaño;
+                    d.Tipo = Documentos[i].Tipo;
+                
+
+                    Documentos.Remove(d);
+                }
+
+
+            }
+   
         }
 
         public void BorrartodolosDocumentos()
@@ -27,6 +45,8 @@ namespace Prototipo.Models.DAO
             Documentos.Clear();
 
         }
+
+        
 
 
     }

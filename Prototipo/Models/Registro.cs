@@ -15,6 +15,10 @@ namespace Prototipo.Models
         [StringLength(10)]
         public string Fk_RUT { get; set; }
 
-        public int Fk_Id_Documento { get; set; }
+        public int? Fk_Id_Documento { get; set; }
+
+        public virtual Documento Documento { get; set; }
+
+        public virtual Personas Personas { get; set; }
     }
 }

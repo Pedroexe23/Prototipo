@@ -15,7 +15,7 @@ namespace Prototipo.Controllers
 {
     public class PersonasController : Controller
     {
-        private Models.Prototipo db = new Models.Prototipo();
+        private Documentacion db = new Documentacion();
         private PersonaDAO personaDAO = new PersonaDAO();
         private Personas Persona = new Personas();
         private Documento documento = new Documento();
@@ -23,6 +23,7 @@ namespace Prototipo.Controllers
         private Registro registro = new Registro();
         private RegistroDAO registroDAO = new RegistroDAO();
         private SqlConnection conexion = new SqlConnection("data source=TECNO-PRACTI;initial catalog=Municipalidad;integrated security=True;");
+       
 
         // GET: Personas
         public ActionResult Index()
@@ -137,15 +138,10 @@ namespace Prototipo.Controllers
         public ActionResult Localizar()
         {
             int cont = 0;
-            
             List<Personas> buscados = personaDAO.GetPersonas();
-
             for (int i = 0; i < buscados.Count(); i++)
             {
                 cont += cont + 1;
-
-
-
             }
             if (cont == 0)
             {
@@ -173,7 +169,6 @@ namespace Prototipo.Controllers
             {
                 ViewBag.Message = "Debes ingresar el nombre  o el apellido o el rut";
                 return View();
-
             }
             else
             {
@@ -191,18 +186,14 @@ namespace Prototipo.Controllers
                         Persona.Rut = Rut;
                         Persona.Apellido = Apellido;
                         personaDAO.GuaradarPersona(Persona);
-
                     }
                     else if (on == 1)
                     {
-    
-                            break;
-                        
+                            break; 
                     }
                     else 
                     {
-                        count+= 1;
-                        
+                        count+= 1;  
                     }
 
 
@@ -229,7 +220,9 @@ namespace Prototipo.Controllers
         [HttpGet]
         public ActionResult DocumentoRegistrados()
         {
+            documentoDAO.EliminarDocumento();
             
+          
             List<Personas> personas = personaDAO.GetPersonas();
             foreach (var item in personas)
             {
@@ -289,6 +282,11 @@ namespace Prototipo.Controllers
             }
             else
             {
+                List<Registro> Guardar_registros = new List<Registro>();
+                List<Documento> Guardar_documentos = new List<Documento>();
+                int Do_Re = 0;
+                int onRE = 0;
+                int onDo = 0;
                 int idregistro = 0;
                 List<Documento> Archivos = documentoDAO.GetDocumento();
                 Archivos.Clear();
@@ -373,8 +371,9 @@ namespace Prototipo.Controllers
                         {
                             Doc.Id_Documento = id + iddoc;
                             idregistro = Doc.Id_Documento;
-                            db.Documento.Add(Doc);
-                            db.SaveChanges();
+                            Guardar_documentos.Add(Doc);
+                            Do_Re = Do_Re + 1;
+                            onDo = onDo + 1;
                         }
 
                     }
@@ -393,7 +392,7 @@ namespace Prototipo.Controllers
                         Documento dos = new Documento();
                         dos.Id_Documento = idregistro;
                         Registro re = new Registro();
-                        re.Fk_Id_Documento = dos.Id_Documento;
+                        re.Fk_Id_Documento = idregistro;
                         re.Fk_RUT = personas.Rut;
                         foreach (var ite in db.Registro)
                         {
@@ -417,17 +416,36 @@ namespace Prototipo.Controllers
                         }
                         if (count == db.Registro.Count())
                         {
-                            db.Registro.Add(re);
-                            db.SaveChanges();
+                            Guardar_registros.Add(re);
+                            Do_Re = Do_Re + 1;
+                            onRE = onRE + 1;
                         }
                     }
                 }
 
-              
+                if (Do_Re==1)
+                {
+                    if (onDo==1)
+                    {
+                        db.Documento.AddRange(Guardar_documentos);
+                    }
+                    else if (onRE==1)
+                    {
+                        db.Registro.AddRange(Guardar_registros);
+                    }
+                   
+                   
+                }
+                else if (Do_Re==2)
+                {
+                    db.Documento.AddRange(Guardar_documentos);
+                    db.Registro.AddRange(Guardar_registros);
+                }
+                db.SaveChanges();
                 documentoDAO.BorrartodolosDocumentos();
             }
 
-            return Redirect("DocumentoRegistrados");
+            return View("DocumentoRegistrados");
         }
         private string GetFileTypeByExtension(string fileExtension)
         {

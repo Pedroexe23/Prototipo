@@ -171,10 +171,11 @@
     <Compile Include="Models\DAO\DocumentoDAO.cs" />
     <Compile Include="Models\DAO\PersonaDAO.cs" />
     <Compile Include="Models\DAO\RegistroDAO.cs" />
+    <Compile Include="Models\Documentacion.cs" />
     <Compile Include="Models\Documento.cs" />
     <Compile Include="Models\Personas.cs" />
-    <Compile Include="Models\Prototipo.cs" />
     <Compile Include="Models\Registro.cs" />
+    <Compile Include="Models\sysdiagrams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

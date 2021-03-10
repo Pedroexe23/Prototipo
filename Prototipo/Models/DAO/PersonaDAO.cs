@@ -19,15 +19,15 @@ namespace Prototipo.Models.DAO
 
         public void BorrarPersona()
         {
-            List<Personas> limpiar = GetPersonas();
-            for (int i = 0; i >= limpiar.Count(); i++)
+             Persona = GetPersonas();
+            for (int i = 0; i >= Persona.Count(); i++)
             {
-                if (limpiar.Count!=0)
+                if (Persona.Count!=0)
                 {
                     Personas p = new Personas();
-                    p.Nombre = limpiar[i].Nombre;
-                    p.Apellido = limpiar[i].Apellido;
-                    p.Rut = limpiar[i].Rut;
+                    p.Nombre = Persona[i].Nombre;
+                    p.Apellido = Persona[i].Apellido;
+                    p.Rut = Persona[i].Rut;
                     Persona.Remove(p);
                 }
                 

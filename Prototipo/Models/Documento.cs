@@ -9,6 +9,12 @@ namespace Prototipo.Models
     [Table("Documento")]
     public partial class Documento
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Documento()
+        {
+            Registro = new HashSet<Registro>();
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id_Documento { get; set; }
@@ -16,12 +22,15 @@ namespace Prototipo.Models
         [StringLength(60)]
         public string Archivo { get; set; }
 
-        public long Tamaño { get; set; }
+        public long? Tamaño { get; set; }
 
         [StringLength(50)]
         public string Tipo { get; set; }
 
         [Column(TypeName = "date")]
-        public DateTime Fecha { get; set; }
+        public DateTime? Fecha { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Registro> Registro { get; set; }
     }
 }
