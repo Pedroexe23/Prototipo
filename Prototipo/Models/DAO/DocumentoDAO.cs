@@ -19,21 +19,20 @@ namespace Prototipo.Models.DAO
 
         public void EliminarDocumento()
         {
-            Documentos = GetDocumento();
+           
             for (int i = 0; i >= Documentos.Count(); i++)
             {
-                if (Documentos.Count != 0)
-                {
+              
                     Documento d = new Documento();
                     d.Id_Documento = Documentos[i].Id_Documento;
                     d.Archivo = Documentos[i].Archivo;
                     d.Fecha= Documentos[i].Fecha;
                     d.Tamaño = Documentos[i].Tamaño;
                     d.Tipo = Documentos[i].Tipo;
-                
-
+                    d.Registro = Documentos[i].Registro;
                     Documentos.Remove(d);
-                }
+                    Documentos.Clear();
+                
 
 
             }

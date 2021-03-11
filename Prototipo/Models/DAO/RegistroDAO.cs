@@ -19,18 +19,19 @@ namespace Prototipo.Models.DAO
         }
         public void BorrarRegistro()
         {
-            List<Registro> limpiar = GetRegistros();
-            for (int i = 0; i == limpiar.Count(); i++)
+            for (int i = 0; i < registros.Count(); i++)
             {
-                if (limpiar.Count!=0)
-                {
-                    Registro R = new Registro();
-                    R.id_registro = limpiar[i].id_registro;
-                    R.Fk_Id_Documento= limpiar[i].Fk_Id_Documento;
-                    R.Fk_RUT = limpiar[i].Fk_RUT;
-                    registros.Remove(R);
-
-                }
+                
+                    Registro r = new Registro();
+                    r.Personas = registros[i].Personas;
+                    r.Documento = registros[i].Documento;
+                    r.id_registro = registros[i].id_registro;
+                    r.Fk_Id_Documento = registros[i].Fk_Id_Documento;
+                    r.Fk_RUT = registros[i].Fk_RUT;
+                    registros.Remove(r);
+                    registros.Clear();
+                
+                
 
             }
         }

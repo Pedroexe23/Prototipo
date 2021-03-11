@@ -32,25 +32,29 @@
         <div>
             @using (Html.BeginForm("DocumentoRegistrados", "Personas", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
-                <div class="card">
-                    <div class="card-body">
-                        @Html.TextBox("insertar", "", new { type = "file" }) <br />
+            <div class="card">
+                <div class="card-body">
+                    @Html.TextBox("insertar", "", new { type = "file" }) <br />
 
-                        @{
-                            if (ViewBag.Message != null)
-                            {
-                             <h3> @ViewBag.Message </h3> 
-                            }
-
-
+                    @{
+                        if (ViewBag.Message != null)
+                        {
+                            <h3> @ViewBag.Message </h3>
                         }
-                    </div>
 
-                    <input type="submit" value="subir" class="btn btn-success" />
+
+                    }
                 </div>
-            }
-        </div>
 
+                <input type="submit" value="subir" class="btn btn-success" />
+                <div class="abajo mover">
+                    <a>@Html.ActionLink("Volver", "Volver", new { @class = "btn btn-success" })</a>
+                </div>
+                
+            </div>
+                            }
+        </div>
+        
         <div>
             <table class="table" border="1" cellpadding="1" cellspacing="1">
                 <thead>
