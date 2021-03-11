@@ -463,40 +463,45 @@ namespace Prototipo.Controllers
 
                     
                 }
+                /* eempieza crear una lista de la clase persona que se extraera los datos que esta en el almacenamieto de PersonaDAO
+                 * y se reutiiza las varibles  count  y on para otro usos */
                 List<Personas> Person = new PersonaDAO().GetPersonas();
                 count = 0;
-                on = 0;
+                
+                /* se crea un foreach para la para leer  los datos de la lista personas  y ses extrae el rut */
                 foreach (var item in Person)
                 {
                     Personas personas1 = new Personas();
                     personas1.Rut = item.Rut;
+                    /* Se reutiliza la lista Archivos y se muesta en un foreach y se extrae solo la Id del documento
+                     * y los datos extraidos seran guardados en el objecto Registro con el nombre de la variable re   */
                     foreach (var items in Archivos)
                     {
-                        Documento dos = new Documento();
-                        dos.Id_Documento = idregistro;
+                       
                         Registro re = new Registro();
                         re.Fk_Id_Documento = idregistro;
                         re.Fk_RUT = personas1.Rut;
+                        /* se creara un foeach para leer los datos que estan en registro qu esta en la base de datos y extraera la claves foraneas de Fk_RUT y Fk_Id_Documento
+                         * */
                         foreach (var ite in db.Registro)
                         {
                             Registro registro = new Registro();
                             registro.Fk_RUT = ite.Fk_RUT;
                             registro.Fk_Id_Documento = ite.Fk_Id_Documento;
+                            /* si la claves foraneas son iguale a los datos que estan en el objecto registro con el nombre re entonces se enviara un mensaje a la vista   */
                             if (registro.Fk_RUT.Equals(re.Fk_RUT) && registro.Fk_Id_Documento == re.Fk_Id_Documento)
                             {
-                                on += 1;
+                                
                                 ViewBag.Message = "ya esta Registrado este documento para este usuario";
-                                return Redirect("DocumentoRegistrados");
+                                return View();
                             }
-                            else if (on == 1)
-                            {
-                                break;
-                            }
+                            /* si no se acumulara la variable count  */
                             else
                             {
                                 count += 1 ;
                             }
                         }
+                        /* si a variable count es  igual entonces  los datos del objecto con el nombre re se guardara e una lista  y se acumula las variables   */
                         if (count == db.Registro.Count())
                         {
                             Guardar_registros.Add(re);
@@ -505,13 +510,15 @@ namespace Prototipo.Controllers
                         }
                     }
                 }
-
+                /* si la variable Do_Re es igual a 1 entoces se guardara el documentos o el registro    */
                 if (Do_Re==1)
                 {
+                    /* si la variable onDo es igual a 1 entonces se guardara solo el documento en la base de datos   */
                     if (onDo==1)
                     {
                         db.Documento.AddRange(Guardar_documentos);
                     }
+                    /* sino si la variable onRe es igual a 1  entonces se guardara solo el registro en la base de datos  */
                     else if (onRE==1)
                     {
                         db.Registro.AddRange(Guardar_registros);
@@ -519,11 +526,13 @@ namespace Prototipo.Controllers
                    
                    
                 }
+                /* sino si la variable Do_RE es igual a 2 entonces se guardara ambos objectos a la base de datos   */
                 else if (Do_Re==2)
                 {
                     db.Documento.AddRange(Guardar_documentos);
                     db.Registro.AddRange(Guardar_registros);
                 }
+                /* se guarda los cambios en la base de datos  despues de este proceso pasara igual que en la parte GET */
                 db.SaveChanges();
                 documentoDAO.BorrartodolosDocumentos();
                 List<Personas> personas = new PersonaDAO().GetPersonas();
@@ -578,13 +587,15 @@ namespace Prototipo.Controllers
 
         private DocumentoDAO DoDAO = new DocumentoDAO();
        
+        /* este proceso es un cerrar sesion loque hara sera borrar todos los datos que estan en los almacenamientos temporales de PersonaDAO y DocumentoDAO  */
         public ActionResult Volver()
         {
             dao.BorrarPersona();
             DoDAO.BorrartodolosDocumentos();
             return Redirect("Localizar");
         }
-
+        /*el proceso GetFileTypeByExtension es un subproceso de para saber que tipo de 
+         * documento tomara los caracteres del documento y sera indetificado por un switch qu al final va a retonar a un nombre al documento  */
         private string GetFileTypeByExtension(string fileExtension)
         {
             switch (fileExtension.ToLower())
