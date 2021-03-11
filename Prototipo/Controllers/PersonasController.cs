@@ -447,7 +447,9 @@ namespace Prototipo.Controllers
                             count += 1;
 
                         }
-
+                        /* si count es mayor o igual al conteo de Documento de la base de datos entonces 
+                         * la id del objecto Documento sera la suma de id y iddoc se almacenara en la lista Guardar_Documento y las variables Do_Re y onDo 
+                         * sera 1 eso solo pasara si el documento no esta registrado en la base de datos */
                         if (count >= db.Documento.Count())
                         {
                             Doc.Id_Documento = id + iddoc;
