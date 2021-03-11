@@ -335,28 +335,42 @@ namespace Prototipo.Controllers
             }
             else
             {
-                /* pero si se subido un documento se creara dos listas una lista para la clase registro y otro para la clase   */
+                /* pero si se subido un documento se creara tres listas una lista para la clase registro y dos listas de la clase Documento
+                 * ademas 4 variables int
+                 * la varable onRE sirve para guardar en la base de datos el nuevo objecto Registro, 
+                 * la variable onDo es para guardar en la base de datos el nuevo documento,
+                 * la variable Do_Re es para guardar el nuevo objecto Registro o el nuevo objecto Documento y
+                 * la variable Idregistro es para agregar para clave foranea de Fk_ID_Documento del nuevo objecto Registro
+                 * */
                 List<Registro> Guardar_registros = new List<Registro>();
                 List<Documento> Guardar_documentos = new List<Documento>();
                 int Do_Re = 0;
                 int onRE = 0;
                 int onDo = 0;
                 int idregistro = 0;
+                /* La lista  Archivos es una lista que esta extraida del Almacenmiento temporal  de DocumentoDAO */
                 List<Documento> Archivos = documentoDAO.GetDocumento();
+                /* y se limpia por Completo */
                 Archivos.Clear();
+                /*se elimnia todo el contenido de los documentoDAO*/
                 documentoDAO.BorrartodolosDocumentos();
-
+                /*se toma el archivo que esta en el summit*/
                 String fileName = Path.GetFileName(insertar.FileName);
-
+                /*lo direcciona a la carpeta DocumentosG con su nombre*/
                 String folderpath = Path.Combine(Server.MapPath("~/DocumentosG"), fileName);
+                /* y se  guarda en la carpeta DocumentosG */
                 insertar.SaveAs(folderpath);
 
-                
+                /* la variable Fechas extrae de la fecha de hoy     */
                 String Fechas = DateTime.Now.Date.ToString("yyyy/MM/dd");
-
+                /* se hace un foreach con la informacion que esta en los documentos almacenados en la carpeta DocumentosG   */
                 foreach (string strfile in Directory.GetFiles(Server.MapPath("~/DocumentosG")))
                 {
+                    /* se usara la clase FileInfo para extraer la informacion del documento  */
                     FileInfo fi = new FileInfo(strfile);
+                    /* si el nombre del documento es igual a nombre del documento que hemos subido entonces se vas a extraer 
+                     * el nombre, el tamaño, la extension y la fecha del el dia que se subio yse  guardara en el archivo temporal de documentoDAO
+                     * para mas informacion de la extension dirijase al metodo GetFileTypeByExtension */
                     if (fi.Name.Equals(fileName))
                     {
                         Documento Doc = new Documento();
@@ -368,41 +382,50 @@ namespace Prototipo.Controllers
                     }
 
                 }
+               /* La lista Archivos extrae los nuevos datos que se ha almacenado en el almacenamieto temporal de DocumentoDAO
+                  y se crea  nuevas variables
+                  la variable count que es para guardar los documentos y  los registros, 
+                  la variable id es para agregar una id a los documentos la base de datos en la parte esta vacia por defectos  se  usara la  id para asignar a la tabla de documentos,
+                  la variable iddoc es igual que  la id pero con una diferencia que se agregara el ultimo id del documeto mas con la id  ej: si la ultima id es 4 iddoc tomara ese id de documento 
+                  y se  sumara con la variable id que por defecto es 1 y el nuevo documento con una id sera 5 ademas 
+                  la variable on su funcion es saber si un documento ya esta registrado en la base de datos */
                 Archivos = documentoDAO.GetDocumento();
                 int count = 0;
                 int id = 1;
                 int iddoc = 0;
-                int on = 1;
+                int on ;
+                /* se empieza a leer el documento que esta en la lista archivos   */
                 foreach (var item in Archivos)
                 {
+                    on = 0;
                     Documento Doc = new Documento();
                     Doc.Archivo = item.Archivo;
                     Doc.Tamaño = item.Tamaño;
                     Doc.Tipo = item.Tipo;
                     Doc.Fecha = DateTime.Parse(Fechas);
+                    /* se crea un foreach para leer los documentos que estan en la base de datos*/
                     foreach (var items in db.Documento)
                     {
-                        on = 0;
+                       
                         Documento doc = new Documento();
                         doc.Id_Documento = items.Id_Documento;
                         doc.Archivo = items.Archivo;
                         doc.Tamaño = items.Tamaño;
                         doc.Tipo = items.Tipo;
                         doc.Fecha = items.Fecha;
+                        /*  si el nombre del documento que esta en la lista es igual al nombre del documento que esta en la base de datos
+                         *  y el tamaño del documento que esta en la lista es igual al tamaño del documento que esta en la base de datos 
+                         *  y el Tipo del documento que esta en la lista es igual al Tipo del documento que esta en la base de datos
+                         *  entonces la id del documento sera guardado en la varible idregistro y la variable on sera 1 y seguira leyendo los documentos  */
                         if (doc.Archivo.Equals(Doc.Archivo) && doc.Tamaño == Doc.Tamaño && doc.Tipo.Equals(Doc.Tipo))
                         {
                             idregistro = doc.Id_Documento;
                             on = 1;
-                            conexion.Close();
-                            conexion.Open();
-                            String Cadena = " update Documento set Fecha=" + "'" + Doc.Fecha + "'where Id_documento=" + doc.Id_Documento + "";
-                            SqlCommand command = new SqlCommand(Cadena, conexion);
-                            int cant;
-                            cant = command.ExecuteNonQuery();
-                            conexion.Close();
                             break;
                         }
-
+                        /* sino si la varible on es igual a 1 entonces 
+                         * si la cantidad de los Documentos de la base de datos no es igual a 0 entoces iddoc tomara la id del documento de la base de datos ademas 
+                         * seguira leyendo */
                         else if (on == 1)
                         {
                             if (db.Documento.Count() != 0)
@@ -411,6 +434,10 @@ namespace Prototipo.Controllers
                             }
                             break;
                         }
+                        /* sino entonces 
+                         * si la cantidad de los Documentos de la base de datos no es igual a 0 entoces iddoc tomara la id del documento de la base de datos ademas la variable count se acumulara 
+                         * seguira leyendo  */
+                       
                         else
                         {
                             if (db.Documento.Count() != 0)
